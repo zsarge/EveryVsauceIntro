@@ -3,6 +3,14 @@ from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_dl import YoutubeDL
 from ffmpy import FFmpeg
 
+# To change the videos this program downloads,
+# change the video keys in urls.txt
+
+# Start downloading [offset] seconds before the string.
+offset = 1
+# The seconds of video to download.
+length = 7
+
 def loadErrorFile():
     errorFile = open('errors.txt', 'a') 
     errorFile.write("\n---------- new instance ----------\n")
@@ -10,7 +18,7 @@ def loadErrorFile():
 
 def writeError(videoId, string="unknown error"):
     errorFile = open('errors.txt', 'a') 
-    errorFile.write(f"Error with video \"{videoId}\".\n")
+    errorFile.write(f"Error with video \"{videoId.strip()}\".\n")
     errorFile.write(f"\t> {string}\n")
     errorFile.write(f"\tContinuing.\n\n")
     errorFile.close()
@@ -28,9 +36,10 @@ def getTimestamps(videoId, string):
     for i in transcript:
         if string.lower() in i['text'].lower():
             # Move start back one second to get the "Hey" in front of "Vsauce"
-            start = (i['start'] - 1) if (i['start'] - 1) > 0 else i['start']
+            start = (i['start'] - offset) if (i['start'] - offset) > 0 else i['start']
             duration = i['duration']
-            return [start, duration]
+            return [start, duration] 
+            # return a list to make selecting just the quoted part easy
     
     writeError(videoId, "String not found in transcript.")
     raise ValueError
@@ -57,6 +66,12 @@ def getAudioStream(info_dict):
             return value['url']
 
 def downloadStreams(vidURL, audURL, startPoint, duration, filename):
+    """
+    This combines the video and audio streams directly, and clips
+    the output to the duration, because youtube-dl doesn't have
+    a built in function for that, so the full video would be downloaded 
+    every time. This way, we only download part of the video.
+    """
     ff = FFmpeg(
         inputs={
             f"{vidURL}" : ['-ss', f"{startPoint}", '-t', f"{duration}"],
@@ -76,8 +91,7 @@ file1 = open('urls.txt', 'r')
 urlFile = file1.readlines() 
     # The command used to get the URLs: (We don't want to have to load this every time)
     # youtube-dl --get-id https://www.youtube.com/playlist?list=PLzyXKIJyRnnNtfLFSaAf7M52cJ64zzQ0A -i >> urls.txt
-    # I deleted bA32J-dmtC4 because he doesn't say the intro, and added the most recent videos.
-
+    # Urls like bA32J-dmtC4 and R3unPcJDbCc have been ignored, because he doesn't say the intro.
 
 # Go through every url in urls.txt
 for index, videoId in enumerate(urlFile):
@@ -93,7 +107,7 @@ for index, videoId in enumerate(urlFile):
             vidURL = getVideoStream(info_dict)
             audURL = getAudioStream(info_dict)
             
-            downloadStreams(vidURL, audURL, timestamps[0], 7, getFileTitle(index))
+            downloadStreams(vidURL, audURL, timestamps[0], length, getFileTitle(index))
 
         except:
             print(f"\nError occured on video {index}: \"{videoId.strip()}\". Continuing.\n")
