@@ -48,11 +48,11 @@ def getAudioStream(info_dict):
 def downloadStreams(vidURL, audURL, startPoint, duration, filename):
     ff = FFmpeg(
         inputs={
-            f"{vidURL}" : ['-ss', f"{startPoint}"],
-            f"{audURL}" : ['-ss', f"{startPoint}"]
+            f"{vidURL}" : ['-ss', f"{startPoint}", '-t', f"{duration}"],
+            f"{audURL}" : ['-ss', f"{startPoint}", '-t', f"{duration}"]
         },
         outputs={
-            f"{filename}": ['-map', '0:v', '-map', '1:a', '-ss', f"{startPoint}", '-t', f"{duration}", "-c:v", "libx264", "-c:a", "aac"]
+            f"{filename}": ['-map', '0:v:0', '-map', '1:a:0', '-y']
         }
     )
 
