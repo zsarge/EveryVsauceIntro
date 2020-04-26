@@ -1,1 +1,2 @@
-
+# Ignore .mkv files
+*.mkv
