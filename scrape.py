@@ -20,7 +20,7 @@ def getTimestamps(videoId, string):
 
     for i in transcript:
         if string.lower() in i['text'].lower():
-            start = i['start']
+            start = (i['start'] - 1) if (i['start'] - 1) > 0 else i['start']
             duration = i['duration']
             return [start, duration]
 
@@ -79,7 +79,7 @@ for index, videoId in enumerate(urlFile):
             vidURL = getVideoStream(info_dict)
             audURL = getAudioStream(info_dict)
             
-            downloadStreams(vidURL, audURL, timestamps[0], timestamps[1], getFileTitle(index))
+            downloadStreams(vidURL, audURL, timestamps[0], 7, getFileTitle(index))
 
         except:
             print(f"\nError occured on video {index}: \"{videoId.strip()}\". Continuing.\n")
