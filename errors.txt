@@ -9,3 +9,45 @@ Error on file 1
 Error on file 1
 Error on file 1
 Error on file 1
+Error on file 0
+Error on file 1
+Error on file 2
+Error on file 3
+Error on file 4
+Error on file 5
+Error on file 6
+
+---------- new instance ----------
+Error on file 1
+Error on file 3
+Error on file 14
+Error on file 54
+Error on file 86
+Error on file 96
+Error on file 102
+Error on file 115
+
+---------- new instance ----------
+Error with video 1.
+	> rdHRX7iIAQs
+
+	Continuing.
+
+---------- new instance ----------
+Error with video 1.
+	> rdHRX7iIAQs
+
+	Continuing.
+
+---------- new instance ----------
+Error with video rdHRX7iIAQs.
+	> unknown error
+	Continuing.
+
+Error with video 9-PgN1Ghr5U.
+	> String not found in transcript.
+	Continuing.
+    
+Error with video 9-PgN1Ghr5U.
+	> unknown error
+	Continuing.

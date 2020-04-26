@@ -3,9 +3,16 @@ from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_dl import YoutubeDL
 from ffmpy import FFmpeg
 
-def writeError(fileNumber):
+def loadErrorFile():
     errorFile = open('errors.txt', 'a') 
-    errorFile.write(f"Error on file {fileNumber}\n")
+    errorFile.write("\n---------- new instance ----------\n")
+    errorFile.close()  
+
+def writeError(videoId, string="unknown error"):
+    errorFile = open('errors.txt', 'a') 
+    errorFile.write(f"Error with video \"{videoId}\".\n")
+    errorFile.write(f"\t> {string}\n")
+    errorFile.write(f"\tContinuing.\n\n")
     errorFile.close()
 
 def getFileTitle(index):
@@ -20,9 +27,13 @@ def getTimestamps(videoId, string):
 
     for i in transcript:
         if string.lower() in i['text'].lower():
+            # Move start back one second to get the "Hey" in front of "Vsauce"
             start = (i['start'] - 1) if (i['start'] - 1) > 0 else i['start']
             duration = i['duration']
             return [start, duration]
+    
+    writeError(videoId, "String not found in transcript.")
+    raise ValueError
 
 def loadVideo(url):
     with YoutubeDL() as ydl:
@@ -58,12 +69,15 @@ def downloadStreams(vidURL, audURL, startPoint, duration, filename):
 
     ff.run()
 
-# ___________________________________________
+# _________________Script that excecutes:__________________________
+loadErrorFile()
 # Open list of URLs
 file1 = open('urls.txt', 'r') 
 urlFile = file1.readlines() 
     # The command used to get the URLs: (We don't want to have to load this every time)
     # youtube-dl --get-id https://www.youtube.com/playlist?list=PLzyXKIJyRnnNtfLFSaAf7M52cJ64zzQ0A -i >> urls.txt
+    # I deleted bA32J-dmtC4 because he doesn't say the intro, and added the most recent videos.
+
 
 # Go through every url in urls.txt
 for index, videoId in enumerate(urlFile):
@@ -83,7 +97,7 @@ for index, videoId in enumerate(urlFile):
 
         except:
             print(f"\nError occured on video {index}: \"{videoId.strip()}\". Continuing.\n")
-            writeError(index)
+            writeError(videoId)
 
 file1.close()
 
