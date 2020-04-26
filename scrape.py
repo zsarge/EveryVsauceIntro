@@ -89,21 +89,6 @@ file1.close()
 
 # Plans:
 
-# The command to download from youtube:
-# ffmpeg -ss $start_point -i "$video_url" -ss $start_point -i "$audio_url" -map 0:v -map 1:a -ss $start_point -t $duration -c:v libx264 -c:a aac test.mkv
-
-# Needs:
-#   start_point
-#   duration
-#   video_url
-#   audio_url
-
-# Audio & Video url is from youtube-dl -g {URL GOES HERE}
-# Gives Video, then Audio Stream
-
-        
-# https://unix.stackexchange.com/questions/230481/how-to-download-portion-of-video-with-youtube-dl-command
-
 # After we get all of the videos downloaded,
 # https://trac.ffmpeg.org/wiki/Create%20a%20mosaic%20out%20of%20several%20input%20videos
 # do some tile mosaic with them all together.

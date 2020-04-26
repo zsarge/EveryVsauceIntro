@@ -1,2 +1,5 @@
 # Ignore .mkv files
 *.mkv
+
+# Ignore the vscode config files
+.vscode
