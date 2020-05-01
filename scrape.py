@@ -27,6 +27,7 @@ def getFileTitle(videoId):
     return(f"Videos/{videoId}.mkv")
 
 def getYoutubeURL(videoId):
+    print(f"https://www.youtube.com/watch?v={videoId}")
     return(f"https://www.youtube.com/watch?v={videoId}")
 
 # Returns the timestamps of the first instance of a string
@@ -44,9 +45,12 @@ def getTimestamps(videoId, string):
     writeError(videoId, "String not found in transcript.")
     raise ValueError
 
-def loadVideo(url):
-    with YoutubeDL() as ydl:
-        return ydl.extract_info(url, download=False)
+def loadVideo(url, videoId):
+    try:
+        return YoutubeDL.extract_info(url, download=False)
+    except:
+        writeError(videoId, "Failed to load video.")
+
 
 def getVideoStream(videoInfo):
     url = ''
@@ -95,7 +99,8 @@ urlFile = file1.readlines()
 
 # Go through every url in urls.txt
 for index, videoId in enumerate(urlFile):
-    fileTitle = getFileTitle(videoId.strip())
+    videoId = videoId.strip()
+    fileTitle = getFileTitle(videoId)
 
     # Check if we already downloaded this video
     if os.path.isfile(fileTitle):
@@ -104,20 +109,15 @@ for index, videoId in enumerate(urlFile):
         try:
             timestamps = getTimestamps(videoId, 'vsauce')
 
-            videoInfo = loadVideo(getYoutubeURL(videoId.strip))
+            videoInfo = loadVideo(getYoutubeURL(videoId), videoId)
             vidURL = getVideoStream(videoInfo)
             audURL = getAudioStream(videoInfo)
             
             downloadStreams(vidURL, audURL, timestamps[0], length, fileTitle)
 
         except:
-            print(f"\nError occured on video {index}: \"{videoId.strip()}\". Continuing.\n")
+            print(f"\nError occured on video {index}: \"{videoId}\". Continuing.\n")
             writeError(videoId)
 
 file1.close()
-
-# Plans:
-
-# After we get all of the videos downloaded,
-# https://trac.ffmpeg.org/wiki/Create%20a%20mosaic%20out%20of%20several%20input%20videos
-# do some tile mosaic with them all together.
+print("Program Exited")
