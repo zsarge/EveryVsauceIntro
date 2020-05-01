@@ -18,13 +18,13 @@ def loadErrorFile():
 
 def writeError(videoId, string="unknown error"):
     errorFile = open('errors.txt', 'a') 
-    errorFile.write(f"Error with video \"{videoId.strip()}\".\n")
+    errorFile.write(f"Error with video \"{videoId.strip()}\"\n")
     errorFile.write(f"\t> {string}\n")
     errorFile.write(f"\tContinuing.\n\n")
     errorFile.close()
 
-def getFileTitle(index):
-    return(f"Videos/{index}.mkv")
+def getFileTitle(videoId):
+    return(f"Videos/{videoId}.mkv")
 
 def getYoutubeURL(videoId):
     return(f"https://www.youtube.com/watch?v={videoId}")
@@ -48,29 +48,29 @@ def loadVideo(url):
     with YoutubeDL() as ydl:
         return ydl.extract_info(url, download=False)
 
-def getVideoStream(info_dict):
+def getVideoStream(videoInfo):
     url = ''
     maxWidth = 0
     # Find the widest video only stream
-    for value in info_dict['formats']:
+    for value in videoInfo['formats']:
         if value['acodec'] == 'none':
             if value['width'] > maxWidth:
                 url = value['url']
     return url
 
-def getAudioStream(info_dict):
+def getAudioStream(videoInfo):
     # Audio quality doesn't matter as much,
     # so return the first audio only stream.
-    for value in info_dict['formats']:
+    for value in videoInfo['formats']:
         if value['vcodec'] == 'none':
             return value['url']
 
 def downloadStreams(vidURL, audURL, startPoint, duration, filename):
     """
-    This combines the video and audio streams directly, and clips
-    the output to the duration, because youtube-dl doesn't have
-    a built in function for that, so the full video would be downloaded 
-    every time. This way, we only download part of the video.
+    This downloads the video and audio streams directly, and only downloads
+    the output to the duration specified. Because youtube-dl doesn't have
+    a built in function for that, the full video would be downloaded 
+    every time. With FFmpeg, we only download part of the video.
     """
     ff = FFmpeg(
         inputs={
@@ -89,25 +89,26 @@ loadErrorFile()
 # Open list of URLs
 file1 = open('urls.txt', 'r') 
 urlFile = file1.readlines() 
-    # The command used to get the URLs: (We don't want to have to load this every time)
+    # The command used to get the URLs: (We don't want to have to download this every time)
     # youtube-dl --get-id https://www.youtube.com/playlist?list=PLzyXKIJyRnnNtfLFSaAf7M52cJ64zzQ0A -i >> urls.txt
     # Urls like bA32J-dmtC4 and R3unPcJDbCc have been ignored, because he doesn't say the intro.
 
 # Go through every url in urls.txt
 for index, videoId in enumerate(urlFile):
+    fileTitle = getFileTitle(videoId.strip())
+
     # Check if we already downloaded this video
-    if os.path.isfile(getFileTitle(index)):
-        print (getFileTitle(index) + " already exists")
+    if os.path.isfile(fileTitle):
+        print (fileTitle + " already exists")
     else:
         try:
-            # print(f"\nTime ({videoId.strip()}):",end="\n\t")
             timestamps = getTimestamps(videoId, 'vsauce')
 
-            info_dict = loadVideo(getYoutubeURL(videoId))
-            vidURL = getVideoStream(info_dict)
-            audURL = getAudioStream(info_dict)
+            videoInfo = loadVideo(getYoutubeURL(videoId.strip))
+            vidURL = getVideoStream(videoInfo)
+            audURL = getAudioStream(videoInfo)
             
-            downloadStreams(vidURL, audURL, timestamps[0], length, getFileTitle(index))
+            downloadStreams(vidURL, audURL, timestamps[0], length, fileTitle)
 
         except:
             print(f"\nError occured on video {index}: \"{videoId.strip()}\". Continuing.\n")

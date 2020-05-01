@@ -3,3 +3,6 @@
 
 # Ignore the vscode config files
 .vscode
+
+# Ignore backups of the videos
+*.zip
