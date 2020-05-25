@@ -47,7 +47,7 @@ def getTimestamps(videoId, string):
 
 def loadVideo(url, videoId):
     try:
-        return YoutubeDL.extract_info(url, download=False)
+        return YoutubeDL().extract_info(url, download=False)
     except:
         writeError(videoId, "Failed to load video.")
 
